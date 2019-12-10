@@ -5,39 +5,48 @@
   </head>
   <body>
     <canvas id="the-canvas"></canvas>
+    <div id="ths-svg"></div>
     <script type="text/javascript" src="pdf.js"></script>
     <script type="text/javascript" src="pdf.worker.js"></script>
     <script>
         var url = "test.pdf";
-
         // Asynchronous download PDF
         var loadingTask = pdfjsLib.getDocument(url);
         loadingTask.promise.then(function(pdf) {
-            pdf.getPage(1).then( function(page){
+            pdf.getPage(1).then( function(page) {
                             // Set scale (zoom) level
             var scale = 1.5;
             // Get viewport (dimensions)
             var viewport = page.getViewport({ scale: scale, });
-
             // Get canvas#the-canvas
-            var canvas = document.getElementById('the-canvas');
-
+            // var canvas = document.getElementById('the-canvas');
+      
             // Fetch canvas' 2d context
-            var context = canvas.getContext('2d');
+            // var context = canvas.getContext('2d');
 
             // Set dimensions to Canvas
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+            // canvas.height = viewport.height;
+            // canvas.width = viewport.width;
 
-            // Prepare object needed by render method
-            var renderContext = {
-            canvasContext: context,
-            viewport: viewport
-            };
+            // // Prepare object needed by render method
+            // var renderContext = {
+            // canvasContext: context,
+            // viewport: viewport
+            // };
 
-            // Render PDF page
-            page.render(renderContext);
-            })
+            // // Render PDF page
+            // page.render(renderContext);
+            // })
+            var svgContainer = document.getElementById('ths-svg');
+            svgContainer.height = viewport.height + 'px';
+            svgContainer.width = viewport.width + 'px';
+            page.getOperatorList().then(function (opList) {
+                var svgGfx = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
+                return svgGfx.getSVG(opList, viewport);
+            }).then(function(svg){
+                svgContainer.appendChild(svg);
+            });
+          })
         });
     </script>
   </body>
